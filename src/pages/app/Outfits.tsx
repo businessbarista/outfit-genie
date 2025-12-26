@@ -102,8 +102,11 @@ export default function Outfits() {
           {outfits.map((outfit) => (
             <Card key={outfit.id} className="overflow-hidden">
               <CardContent className="p-0">
-                {/* Outfit preview grid */}
-                <div className="grid grid-cols-3 gap-1 bg-secondary p-2">
+                {/* Outfit preview grid - clickable to edit */}
+                <button
+                  className="grid w-full grid-cols-3 gap-1 bg-secondary p-2 transition-opacity hover:opacity-80"
+                  onClick={() => navigate(`/app/outfits/${outfit.id}`)}
+                >
                   {outfit.outfit_items.slice(0, 3).map((oi, idx) => (
                     <div
                       key={idx}
@@ -121,7 +124,7 @@ export default function Outfits() {
                       +{outfit.outfit_items.length - 3}
                     </div>
                   )}
-                </div>
+                </button>
 
                 <div className="flex items-center justify-between p-4">
                   <div>
