@@ -71,6 +71,13 @@ Return JSON with:
 
 Ensure colors complement each other and dress levels match. Return ONLY JSON.`;
 
+    if (!LOVABLE_API_KEY) {
+      console.error("LOVABLE_API_KEY is not configured");
+      throw new Error("AI service not configured");
+    }
+
+    console.log("Calling Lovable AI gateway...");
+    
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -84,8 +91,19 @@ Ensure colors complement each other and dress levels match. Return ONLY JSON.`;
     });
 
     if (!response.ok) {
-      throw new Error("AI suggestion failed");
+      const errorText = await response.text();
+      console.error("AI gateway error:", response.status, errorText);
+      
+      if (response.status === 429) {
+        throw new Error("Rate limit exceeded. Please try again in a moment.");
+      }
+      if (response.status === 402) {
+        throw new Error("AI credits exhausted. Please add credits to continue.");
+      }
+      throw new Error(`AI suggestion failed: ${response.status}`);
     }
+    
+    console.log("AI response received successfully");
 
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content || "{}";
