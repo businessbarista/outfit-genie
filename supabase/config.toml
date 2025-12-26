@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.remove-background]
 verify_jwt = false
+
+[functions.detect-clothing]
+verify_jwt = false

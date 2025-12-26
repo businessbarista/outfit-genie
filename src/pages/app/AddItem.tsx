@@ -11,10 +11,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { CATEGORIES, SUBTYPES, COLORS, SEASONS, PATTERNS, DRESS_LEVELS, LAYER_ROLES } from '@/lib/constants';
-import { Upload, Camera, Loader2, ArrowLeft, Check } from 'lucide-react';
+import { Upload, Camera, Loader2, ArrowLeft, Check, Scan } from 'lucide-react';
+import CameraScanner from '@/components/CameraScanner';
 
 
-type Step = 'upload' | 'processing' | 'review';
+type Step = 'upload' | 'scanning' | 'processing' | 'review';
 
 interface TagData {
   category: string;
@@ -245,7 +246,15 @@ export default function AddItem() {
                 onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files[0])}
               />
             </div>
-            <div className="mt-4 flex justify-center">
+            <div className="mt-4 flex justify-center gap-3">
+              <Button
+                variant="outline"
+                className="gap-2"
+                onClick={() => setStep('scanning')}
+              >
+                <Scan className="h-4 w-4" />
+                Scan Item
+              </Button>
               <Button
                 variant="outline"
                 className="gap-2"
@@ -262,6 +271,15 @@ export default function AddItem() {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {step === 'scanning' && (
+        <CameraScanner
+          onCapture={(file) => {
+            handleFileSelect(file);
+          }}
+          onClose={() => setStep('upload')}
+        />
       )}
 
       {step === 'processing' && (
