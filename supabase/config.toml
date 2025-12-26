@@ -1,1 +1,7 @@
 project_id = "edwusepkrcicvsbbkdza"
+
+[functions.analyze-clothing]
+verify_jwt = false
+
+[functions.suggest-outfit]
+verify_jwt = false
