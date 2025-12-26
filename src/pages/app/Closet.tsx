@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { ClosetItem } from '@/types/database';
 import { CATEGORIES } from '@/lib/constants';
-import { Plus, Heart, Search, Loader2, ChevronLeft, ChevronRight, MoreVertical, SlidersHorizontal, LayoutGrid, Shirt, User } from 'lucide-react';
+import { Plus, Heart, Search, Loader2, ChevronLeft, ChevronRight, MoreVertical, SlidersHorizontal, LayoutGrid, Shirt, User, Grid3X3, Layers } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
@@ -83,6 +83,7 @@ export default function Closet() {
   const [showFavorites, setShowFavorites] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [viewMode, setViewMode] = useState<'carousel' | 'grid'>('carousel');
 
   useEffect(() => {
     fetchItems();
@@ -227,6 +228,31 @@ export default function Closet() {
             <p className="text-sm text-muted-foreground">Total {items.length} items</p>
           </div>
           <div className="flex items-center gap-2">
+            {/* View Toggle */}
+            <div className="flex rounded-full bg-muted p-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn(
+                  "h-8 w-8 rounded-full",
+                  viewMode === 'carousel' && "bg-background shadow-sm"
+                )}
+                onClick={() => setViewMode('carousel')}
+              >
+                <Layers className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn(
+                  "h-8 w-8 rounded-full",
+                  viewMode === 'grid' && "bg-background shadow-sm"
+                )}
+                onClick={() => setViewMode('grid')}
+              >
+                <Grid3X3 className="h-4 w-4" />
+              </Button>
+            </div>
             <Button
               variant="outline"
               size="icon"
@@ -295,8 +321,11 @@ export default function Closet() {
           })}
         </div>
 
-        {/* Card Carousel */}
-        <div className="relative flex flex-1 items-center justify-center px-4 pb-20">
+        {/* Content Area */}
+        <div className={cn(
+          "relative flex-1 px-4 pb-20",
+          viewMode === 'carousel' ? "flex items-center justify-center" : "overflow-y-auto"
+        )}>
           {filteredItems.length === 0 ? (
             <div className="flex flex-col items-center justify-center text-center">
               <div className="mb-4 rounded-full bg-secondary p-6">
@@ -319,7 +348,61 @@ export default function Closet() {
                 </Link>
               )}
             </div>
+          ) : viewMode === 'grid' ? (
+            /* Grid View */
+            <div className="grid grid-cols-2 gap-3 py-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+              {filteredItems.map((item) => (
+                <div
+                  key={item.id}
+                  className="group relative cursor-pointer overflow-hidden rounded-2xl bg-card shadow-md transition-transform hover:scale-[1.02]"
+                  onClick={() => navigate(`/app/closet/item/${item.id}`)}
+                >
+                  {/* Favorite Button */}
+                  <button
+                    onClick={(e) => toggleFavorite(item, e)}
+                    className={cn(
+                      "absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full transition-all",
+                      item.favorite 
+                        ? "bg-favorite/20 text-favorite" 
+                        : "bg-background/80 text-muted-foreground opacity-0 group-hover:opacity-100"
+                    )}
+                  >
+                    <Heart className={cn("h-4 w-4", item.favorite && "fill-current")} />
+                  </button>
+
+                  {/* Image */}
+                  <div className="aspect-square bg-gradient-to-b from-secondary/30 to-secondary/60">
+                    <img
+                      src={item.cutout_image_url || item.original_image_url}
+                      alt={`${item.category} - ${item.subtype || 'item'}`}
+                      className="h-full w-full object-contain p-2"
+                    />
+                  </div>
+
+                  {/* Info */}
+                  <div className="p-2">
+                    <h4 className="truncate text-sm font-semibold capitalize text-foreground">
+                      {item.subtype || item.category}
+                    </h4>
+                    <div className="mt-1 flex items-center gap-1.5">
+                      {item.primary_color && (
+                        <span
+                          className="h-2.5 w-2.5 rounded-full border border-border"
+                          style={{ 
+                            background: colorMap[item.primary_color] || item.primary_color 
+                          }}
+                        />
+                      )}
+                      <span className="truncate text-xs capitalize text-muted-foreground">
+                        {item.category}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           ) : currentItem ? (
+            /* Carousel View */
             <>
               {/* Navigation Arrows */}
               {filteredItems.length > 1 && (
