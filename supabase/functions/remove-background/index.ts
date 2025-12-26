@@ -39,7 +39,7 @@ serve(async (req) => {
             content: [
               {
                 type: "text",
-                text: "Extract ONLY the clothing item (shirt, pants, dress, jacket, shoes, etc.) from this image. Remove everything else including background, people's body parts, plants, furniture, and any other objects. The result should be just the clothing item isolated on a completely transparent background. Keep the clothing item intact with all its details and colors preserved."
+                text: "Extract ONLY the single main clothing item (shirt, pants, dress, jacket, shoes, etc.) from this image. Follow these rules strictly:\n\n1. REMOVE COMPLETELY: background, people's body parts (hands, feet, arms, legs, torso), plants, furniture, hangers, mannequins, and ALL other objects\n2. KEEP ONLY: The single main clothing article with all its details, colors, and textures preserved\n3. ORIENTATION: Rotate the clothing item so it appears upright and properly oriented (e.g., shirts should have collar at top, pants should have waistband at top)\n4. BACKGROUND: Output must have a pure white (#FFFFFF) background - not transparent, not gray, pure white\n5. CENTERING: Center the clothing item in the frame with some padding around it\n\nThe final image should look like a professional product photo of just the clothing item on a clean white background."
               },
               {
                 type: "image_url",
