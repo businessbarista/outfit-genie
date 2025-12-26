@@ -12,7 +12,7 @@ import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { CATEGORIES, SUBTYPES, COLORS, SEASONS, PATTERNS, DRESS_LEVELS, LAYER_ROLES } from '@/lib/constants';
 import { Upload, Camera, Loader2, ArrowLeft, Check } from 'lucide-react';
-import { removeBackground, loadImage } from '@/lib/removeBackground';
+
 
 type Step = 'upload' | 'processing' | 'review';
 
@@ -79,16 +79,27 @@ export default function AddItem() {
           body: { imageBase64: base64 },
         });
 
-        // Background removal
-        setProcessingStatus('Removing background...');
+        // AI-powered background removal for precise clothing extraction
+        setProcessingStatus('Extracting clothing item...');
         let cutoutBlobResult: Blob | null = null;
         let cutoutPreviewUrl = preview;
         
         try {
-          const imageElement = await loadImage(file);
-          cutoutBlobResult = await removeBackground(imageElement);
-          cutoutPreviewUrl = URL.createObjectURL(cutoutBlobResult);
-          console.log('Background removed successfully');
+          const { data: bgData, error: bgError } = await supabase.functions.invoke('remove-background', {
+            body: { imageBase64: base64 },
+          });
+          
+          if (bgError) throw bgError;
+          
+          if (bgData?.image) {
+            // Convert base64 to blob
+            const response = await fetch(bgData.image);
+            cutoutBlobResult = await response.blob();
+            cutoutPreviewUrl = bgData.image;
+            console.log('Background removed successfully with AI');
+          } else {
+            throw new Error('No image returned');
+          }
         } catch (bgError) {
           console.error('Background removal failed:', bgError);
           toast({ 
