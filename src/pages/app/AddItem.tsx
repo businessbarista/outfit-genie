@@ -12,6 +12,7 @@ import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { CATEGORIES, SUBTYPES, COLORS, SEASONS, PATTERNS, DRESS_LEVELS, LAYER_ROLES } from '@/lib/constants';
 import { Upload, Camera, Loader2, ArrowLeft, Check } from 'lucide-react';
+import { removeBackground, loadImage } from '@/lib/removeBackground';
 
 type Step = 'upload' | 'processing' | 'review';
 
@@ -39,6 +40,7 @@ export default function AddItem() {
   const [cutoutPreview, setCutoutPreview] = useState<string>('');
   const [cutoutBlob, setCutoutBlob] = useState<Blob | null>(null);
   const [processing, setProcessing] = useState(false);
+  const [processingStatus, setProcessingStatus] = useState<string>('');
   const [saving, setSaving] = useState(false);
   const [tags, setTags] = useState<TagData>({
     category: 'tops',
@@ -70,10 +72,36 @@ export default function AddItem() {
       reader.onload = async () => {
         const base64 = reader.result as string;
         
-        // Call edge function for AI tagging
-        const { data: tagData, error: tagError } = await supabase.functions.invoke('analyze-clothing', {
+        // Start both AI tagging and background removal in parallel
+        setProcessingStatus('Analyzing clothing...');
+        
+        const tagPromise = supabase.functions.invoke('analyze-clothing', {
           body: { imageBase64: base64 },
         });
+
+        // Background removal
+        setProcessingStatus('Removing background...');
+        let cutoutBlobResult: Blob | null = null;
+        let cutoutPreviewUrl = preview;
+        
+        try {
+          const imageElement = await loadImage(file);
+          cutoutBlobResult = await removeBackground(imageElement);
+          cutoutPreviewUrl = URL.createObjectURL(cutoutBlobResult);
+          console.log('Background removed successfully');
+        } catch (bgError) {
+          console.error('Background removal failed:', bgError);
+          toast({ 
+            title: 'Background removal failed', 
+            description: 'Using original image instead.', 
+            variant: 'default' 
+          });
+          cutoutBlobResult = file;
+        }
+
+        // Wait for AI tagging to complete
+        setProcessingStatus('Finishing up...');
+        const { data: tagData, error: tagError } = await tagPromise;
 
         if (!tagError && tagData) {
           setTags((prev) => ({
@@ -88,10 +116,8 @@ export default function AddItem() {
           }));
         }
 
-        // For now, use original as cutout - background removal will be handled client-side
-        // The cutout will be the original image for v1
-        setCutoutPreview(preview);
-        setCutoutBlob(file);
+        setCutoutPreview(cutoutPreviewUrl);
+        setCutoutBlob(cutoutBlobResult);
         setProcessing(false);
         setStep('review');
       };
@@ -232,7 +258,7 @@ export default function AddItem() {
           <CardContent className="flex flex-col items-center justify-center p-12">
             <Loader2 className="mb-4 h-12 w-12 animate-spin text-primary" />
             <p className="font-medium">Processing your image...</p>
-            <p className="mt-1 text-sm text-muted-foreground">Analyzing and tagging your clothing item</p>
+            <p className="mt-1 text-sm text-muted-foreground">{processingStatus || 'Analyzing and tagging your clothing item'}</p>
           </CardContent>
         </Card>
       )}
