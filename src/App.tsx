@@ -13,6 +13,7 @@ import AddItem from "./pages/app/AddItem";
 import ItemDetail from "./pages/app/ItemDetail";
 import Outfits from "./pages/app/Outfits";
 import NewOutfit from "./pages/app/NewOutfit";
+import EditOutfit from "./pages/app/EditOutfit";
 import Suggest from "./pages/app/Suggest";
 import Settings from "./pages/app/Settings";
 import NotFound from "./pages/NotFound";
@@ -42,6 +43,7 @@ const App = () => (
               <Route path="closet/item/:id" element={<ItemDetail />} />
               <Route path="outfits" element={<Outfits />} />
               <Route path="outfits/new" element={<NewOutfit />} />
+              <Route path="outfits/:id" element={<EditOutfit />} />
               <Route path="suggest" element={<Suggest />} />
               <Route path="settings" element={<Settings />} />
             </Route>
