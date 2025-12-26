@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.suggest-outfit]
 verify_jwt = false
+
+[functions.remove-background]
+verify_jwt = false
