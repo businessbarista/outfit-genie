@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.detect-clothing]
 verify_jwt = false
+
+[functions.build-outfit]
+verify_jwt = false

@@ -12,7 +12,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useToast } from '@/hooks/use-toast';
 import { ClosetItem } from '@/types/database';
 import { CATEGORIES, SUBTYPES, COLORS, SEASONS, PATTERNS, DRESS_LEVELS, LAYER_ROLES } from '@/lib/constants';
-import { ArrowLeft, Loader2, Save, Trash2 } from 'lucide-react';
+import { ArrowLeft, Loader2, Save, Trash2, Wand2 } from 'lucide-react';
 
 export default function ItemDetail() {
   const { id } = useParams<{ id: string }>();
@@ -269,6 +269,25 @@ export default function ItemDetail() {
               onChange={(e) => setItem({ ...item, notes: e.target.value })}
             />
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Build Outfit Button */}
+      <Card className="border-primary/20 bg-primary/5">
+        <CardContent className="flex items-center justify-between p-4">
+          <div>
+            <p className="font-semibold">Build an Outfit</p>
+            <p className="text-sm text-muted-foreground">
+              Get AI suggestions that complement this item
+            </p>
+          </div>
+          <Button
+            className="gap-2"
+            onClick={() => navigate(`/app/closet/item/${item.id}/build`)}
+          >
+            <Wand2 className="h-4 w-4" />
+            Build Outfit
+          </Button>
         </CardContent>
       </Card>
 

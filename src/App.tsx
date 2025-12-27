@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import Closet from "./pages/app/Closet";
 import AddItem from "./pages/app/AddItem";
 import ItemDetail from "./pages/app/ItemDetail";
+import BuildOutfit from "./pages/app/BuildOutfit";
 import Outfits from "./pages/app/Outfits";
 import NewOutfit from "./pages/app/NewOutfit";
 import EditOutfit from "./pages/app/EditOutfit";
@@ -41,6 +42,7 @@ const App = () => (
               <Route path="closet" element={<Closet />} />
               <Route path="closet/add" element={<AddItem />} />
               <Route path="closet/item/:id" element={<ItemDetail />} />
+              <Route path="closet/item/:id/build" element={<BuildOutfit />} />
               <Route path="outfits" element={<Outfits />} />
               <Route path="outfits/new" element={<NewOutfit />} />
               <Route path="outfits/:id" element={<EditOutfit />} />
